@@ -22,7 +22,7 @@ def create_blog(blog: schemas.Blog):
     return blog
 '''
 #2-Logic
-
+# Blog - Method
 @app.post("/blog", status_code=status.HTTP_201_CREATED)
 def create_blog(blog: schemas.Blog,  db:Session = Depends(get_db) ):
     print('create blog inside api')
@@ -39,6 +39,25 @@ def get_blog(db:Session = Depends(get_db)):
     print("Enter into db....")
     blog = db.query(model.Blog).all() 
     return blog
+
+# User - Methods
+
+@app.post("/user", status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.User,  db:Session = Depends(get_db) ):
+    print('create blog inside api')
+    #create model to save in db 
+    new_user = model.User(id = user.id,Name=user.Name,Age=user.Age)
+    #save to db
+    db.add(new_user)
+    db.commit()
+    print('successfully create blog')
+    return user
+
+
+
+
+
+
 
 # @app.delete("/blog/{id}",status_code=status.HTTP_204_NO_CONTENT)
 # def destroyBlog(id:int,db:Session = Depends(get_db)):

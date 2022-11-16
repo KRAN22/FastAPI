@@ -43,19 +43,34 @@ def get_blog(db:Session = Depends(get_db)):
 # User - Methods
 
 @app.post("/user", status_code=status.HTTP_201_CREATED)
-def create_user(user: schemas.User,  db:Session = Depends(get_db) ):
+def create_user(user: schemas.User, response : Response, db:Session = Depends(get_db) ):
     print('create blog inside api')
     #create model to save in db 
     new_user = model.User(id = user.id,Name=user.Name,Age=user.Age)
+    all_user = db.query(model.User).all()
+    for u in all_user:
+        if u.id == new_user.id:
+            response.status_code = status.HTTP_208_ALREADY_REPORTED
+            raise HTTPException(status_code=status.HTTP_208_ALREADY_REPORTED,detail=f"This id {new_user.id} already exists")
     #save to db
     db.add(new_user)
     db.commit()
     print('successfully create blog')
     return user
 
+@app.get("/user")
+def get_user(db:Session=Depends(get_db)):
+    print("Enter inti DB.......")
+    user = db.query(model.User).all()
+    return user
 
-
-
+@app.get("/user/{id}",status_code=status.HTTP_200_OK)
+def get_user_by_id(id : int , db:Session=Depends(get_db)):
+    user = db.query(model.User).filter(model.User.id == id).first()
+    if not user:
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND,detail=f"user with the id {id} is not available" )
+    return user 
+    
 
 
 

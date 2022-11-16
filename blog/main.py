@@ -1,7 +1,8 @@
-from fastapi import FastAPI,Depends,status,Response,HTTPException,Form, Body
+from fastapi import FastAPI,Depends,status,Response,HTTPException
 from . import schemas,model
 from .database import engine,SessionLocal
 from sqlalchemy.orm import Session
+
 
 app = FastAPI()
 
@@ -36,7 +37,8 @@ def create_blog(blog: schemas.Blog,  db:Session = Depends(get_db) ):
 @app.get("/blog")
 def get_blog(db:Session = Depends(get_db)):
     print("Enter into db....")
-    return db.query(model.Blog).all() 
+    blog = db.query(model.Blog).all() 
+    return blog
 
 # @app.delete("/blog/{id}",status_code=status.HTTP_204_NO_CONTENT)
 # def destroyBlog(id:int,db:Session = Depends(get_db)):

@@ -3,6 +3,7 @@ from . import schemas,model
 from .database import engine,SessionLocal
 from sqlalchemy.orm import Session
 
+from .blog import Blog
 
 app = FastAPI()
 
@@ -24,15 +25,11 @@ def create_blog(blog: schemas.Blog):
 #2-Logic
 # Blog - Method
 @app.post("/blog", status_code=status.HTTP_201_CREATED)
-def create_blog(blog: schemas.Blog,  db:Session = Depends(get_db) ):
-    print('create blog inside api')
-    #create model to save in db 
-    new_blog = model.Blog(title=blog.title,body=blog.body)
-    #save to db
-    db.add(new_blog)
-    db.commit()
-    print('successfully create blog')
-    return blog
+def create_blog(blog: schemas.Blog, db:Session = Depends(get_db)):
+    blogs = Blog().create_blog(blog, db)
+    print(blogs)
+    return blogs
+
 
 @app.get("/blog")
 def get_blog(db:Session = Depends(get_db)):
@@ -46,12 +43,7 @@ def get_blog(db:Session = Depends(get_db)):
 def create_user(user: schemas.User, response : Response, db:Session = Depends(get_db) ):
     print('create blog inside api')
     #create model to save in db 
-    new_user = model.User(id = user.id,Name=user.Name,Age=user.Age)
-    all_user = db.query(model.User).all()
-    for u in all_user:
-        if u.id == new_user.id:
-            response.status_code = status.HTTP_208_ALREADY_REPORTED
-            raise HTTPException(status_code=status.HTTP_208_ALREADY_REPORTED,detail=f"This id {new_user.id} already exists")
+    new_user = model.User(Name=user.Name,Age=user.Age)
     #save to db
     db.add(new_user)
     db.commit()
@@ -74,13 +66,31 @@ def get_user_by_id(id : int , db:Session=Depends(get_db)):
     
 @app.delete("/user/{id}",status_code=status.HTTP_204_NO_CONTENT)
 def destroyUser(id : int ,db:Session = Depends(get_db)):   
-    db.query(model.User).filter(model.User.id).delete(synchronize_session=False)
+    user = db.query(model.User).filter(model.User.id == id)
+    if not user.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND,detail=f"user with the id {id} is not available" )
+    
+    user.delete()
     db.commit()
     return "Done Deleting...."
         
 
 @app.put("/blog/{id}",status_code=status.HTTP_202_ACCEPTED)
 def updateBlog(id:int, request : schemas.User, db:Session = Depends(get_db)):
-    db.query(model.User).filter(model.User.id == id).update(request,synchronize_session=False)
+    user = db.query(model.User).filter(model.User.id == id)
+    if not user.first():
+        raise HTTPException(status_code= status.HTTP_404_NOT_FOUND,detail=f"user with the id {id} is not available" )
+    user.update(request)
     db.commit()
     return "Updated...."
+
+@app.post("/person",status_code=status.HTTP_201_CREATED)
+def createPerson(request : schemas.Person,db : Session= Depends(get_db)):
+    print('create blog inside api')
+    new_person = model.Person(name = request.name ,password = request.password,email= request.email)
+    db.add(new_person)
+    db.commit()
+    db.refresh(new_person)
+    print('successfully create blog')
+    return new_person
+    

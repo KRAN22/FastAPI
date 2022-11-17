@@ -4,15 +4,19 @@ from typing import Optional
 
 
 class Blog(BaseModel):
-    id : int
     title: str
     body: str
 
 class User(BaseModel):
     
-    id:Optional[int] = Field(default=None, primary_key=True)
     Name: str
     Age: int
+       
+class Person(BaseModel):
+    
+    name : str
+    password : str
+    email: str
     
     class Config:
         orm_mode = True

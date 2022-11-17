@@ -71,27 +71,16 @@ def get_user_by_id(id : int , db:Session=Depends(get_db)):
         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND,detail=f"user with the id {id} is not available" )
     return user 
     
+    
+@app.delete("/user/{id}",status_code=status.HTTP_204_NO_CONTENT)
+def destroyUser(id : int ,db:Session = Depends(get_db)):   
+    db.query(model.User).filter(model.User.id).delete(synchronize_session=False)
+    db.commit()
+    return "Done Deleting...."
+        
 
-
-
-# @app.delete("/blog/{id}",status_code=status.HTTP_204_NO_CONTENT)
-# def destroyBlog(id:int,db:Session = Depends(get_db)):
-#     db.query(model.Blog).filter(model.Blog.id == id).delete(synchronize_session=False)
-#     db.commit()
-#     return "Done Deleting...."
-
-# @app.put("/blog/{id}",status_code=status.HTTP_202_ACCEPTED)
-# def updateBlog(id:int,db:Session = Depends(get_db)):
-#     db.query(model.Blog).filter()
-
-# @app.get("/blog")
-# def get_blog(db:Session = Depends(get_db)):
-#     blogs = db.query(model.Blog).all()
-#     return blogs
-
-# @app.get("/blog/{id}",status_code=200)
-# def get_blog_by_id(id: int,response:Response ,db:Session = Depends(get_db)):
-#     blog = db.query(model.Blog).filter(model.Blog.id == id).first()
-#     if not blog:
-#         raise HTTPException(status_code= status.HTTP_404_NOT_FOUND,detail=f"Blog with the id {id} is not available" )
-#     return blog
+@app.put("/blog/{id}",status_code=status.HTTP_202_ACCEPTED)
+def updateBlog(id:int, request : schemas.User, db:Session = Depends(get_db)):
+    db.query(model.User).filter(model.User.id == id).update(request,synchronize_session=False)
+    db.commit()
+    return "Updated...."

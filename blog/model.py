@@ -1,5 +1,6 @@
 from sqlalchemy import String, Integer,Column
 from .database import Base
+from sqlalchemy.orm import relationship
 
 class Blog(Base):
     __tablename__ = "Blogs"
@@ -8,6 +9,8 @@ class Blog(Base):
     title = Column(String)
     body = Column(String)
     
+    creator = relationship("User", back_populates="blogs")
+    
     
 class User(Base):
     __tablename__ = "User"
@@ -15,6 +18,8 @@ class User(Base):
     id = Column(Integer,primary_key=True,index= True,autoincrement=True)
     Name = Column(String(255))
     Age = Column(Integer)
+    
+    blogs = relationship("Blog", back_populates="creator")
     
     
 class Person(Base):
